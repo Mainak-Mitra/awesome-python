@@ -690,7 +690,7 @@ Inspired by [awesome-php](https://github.com/ziadoz/awesome-php).
 * [sentry-python](https://github.com/getsentry/sentry-python) - Sentry SDK for Python.
 * [structlog](https://www.structlog.org/en/stable/) - Structured logging made easy.
 
-## Machine Learning
+## Machine Learning Libraries
 
 *Libraries for Machine Learning. Also see [awesome-machine-learning](https://github.com/josephmisiti/awesome-machine-learning#python).*
 
