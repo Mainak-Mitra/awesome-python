@@ -14,70 +14,46 @@
     and flattening the end structure into a list of lines. Revision 2 maybe ^.^.
 """
 
-def sort_blocks():
-    # First, we load the current README into memory
-    with open('README.md', 'r') as read_me_file:
-        read_me = read_me_file.read()
+import os
 
-    # Separating the 'table of contents' from the contents (blocks)
-    table_of_contents = ''.join(read_me.split('- - -')[0])
-    blocks = ''.join(read_me.split('- - -')[1]).split('\n# ')
-    for i in range(len(blocks)):
-        if i == 0:
-            blocks[i] = blocks[i] + '\n'
-        else:
-            blocks[i] = '# ' + blocks[i] + '\n'
+def read_file(file_path):
+    """Reads the contents of a file and returns it."""
+    if not os.path.exists(file_path):
+        print(f"The file {file_path} does not exist.")
+        return None
+    with open(file_path, 'r') as file:
+        return file.readlines()
 
-    # Sorting the libraries
-    inner_blocks = sorted(blocks[0].split('##'))
-    for i in range(1, len(inner_blocks)):
-        if inner_blocks[i][0] != '#':
-            inner_blocks[i] = '##' + inner_blocks[i]
-    inner_blocks = ''.join(inner_blocks)
+def write_file(file_path, content):
+    """Writes the given content to a file."""
+    with open(file_path, 'w') as file:
+        file.writelines(content)
 
-    # Replacing the non-sorted libraries by the sorted ones and gathering all at the final_README file
-    blocks[0] = inner_blocks
-    final_README = table_of_contents + '- - -' + ''.join(blocks)
+def sort_blocks(read_me_lines):
+    """Sorts the blocks of content in the README file."""
+    blocks = []
+    temp_block = []
 
-    with open('README.md', 'w+') as sorted_file:
-        sorted_file.write(final_README)
+    for line in read_me_lines:
+        if line.startswith('# '):
+            if temp_block:
+                blocks.append(''.join(sorted(temp_block, key=str.lower)))
+                temp_block = []
+        temp_block.append(line)
+    if temp_block:
+        blocks.append(''.join(sorted(temp_block, key=str.lower)))
+
+    return blocks
 
 def main():
-    # First, we load the current README into memory as an array of lines
-    with open('README.md', 'r') as read_me_file:
-        read_me = read_me_file.readlines()
-
-    # Then we cluster the lines together as blocks
-    # Each block represents a collection of lines that should be sorted
-    # This was done by assuming only links ([...](...)) are meant to be sorted
-    # Clustering is done by indentation
-    blocks = []
-    last_indent = None
-    for line in read_me:
-        s_line = line.lstrip()
-        indent = len(line) - len(s_line)
-
-        if any([s_line.startswith(s) for s in ['* [', '- [']]):
-            if indent == last_indent:
-                blocks[-1].append(line)
-            else:
-                blocks.append([line])
-            last_indent = indent
-        else:
-            blocks.append([line])
-            last_indent = None
-
-    with open('README.md', 'w+') as sorted_file:
-        # Then all of the blocks are sorted individually
-        blocks = [
-            ''.join(sorted(block, key=str.lower)) for block in blocks
-        ]
-        # And the result is written back to README.md
-        sorted_file.write(''.join(blocks))
-
-    # Then we call the sorting method
-    sort_blocks()
-
+    """Main function to execute the sorting of README blocks."""
+    readme_path = 'README.md'
+    read_me_lines = read_file(readme_path)
+    if read_me_lines is None:
+        return
+    sorted_blocks = sort_blocks(read_me_lines)
+    write_file(readme_path, sorted_blocks)
 
 if __name__ == "__main__":
     main()
+
